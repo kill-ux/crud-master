@@ -36,9 +36,21 @@ def delete_movies():
     db.session.commit()
     return {"message": "All movies deleted"}, 200
 
-@movies_bp.route("/<int:id>", methods=["GET"])
+@movies_bp.route("/<int:id>", methods=["GET", "PUT", "DELETE"])
 def get_movie(id):
     movie = Movie.query.get(id)
     if not movie:
         return {"error": "Movie not found"}, 404
+    match request.method:
+        case "PUT":
+            data = request.get_json()
+            if not data or "title" not in data:
+                return {"error": "Missing title"}, 400
+            movie.title = data["title"]
+            movie.description = data.get("description", movie.description)
+            db.session.commit()
+        case "DELETE":
+            db.session.delete(movie)
+            db.session.commit()
+            return {"message": "Movie deleted"}, 200
     return movie.to_dict()
