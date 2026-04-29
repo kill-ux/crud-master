@@ -1,0 +1,1 @@
+docker run --name inventory-db -e POSTGRES_PASSWORD=password -e POSTGRES_DB=inventory-db -p 5432:5432 -d postgres
