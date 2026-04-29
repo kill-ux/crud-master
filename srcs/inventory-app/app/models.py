@@ -8,3 +8,9 @@ class Movie(db.Model):
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     
+    to_dict = lambda self: {
+        'id': self.id,
+        'title': self.title,
+        'description': self.description
+    }
+    
