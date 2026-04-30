@@ -8,11 +8,15 @@ API_MOVIES_URL = "/api/movies"
 
 
 @gateway_bp.route(
+    API_MOVIES_URL + "/", methods=["GET", "POST", "DELETE"]
+)
+@gateway_bp.route(
     API_MOVIES_URL + "/<path:subpath>", methods=["GET", "POST", "PUT", "DELETE"]
 )
-def proxy_to_inventory(subpath):
+def proxy_to_inventory(subpath=""):
     """Proxy endpoint to forward requests to the inventory service"""
-    forwarded_url = INVENTORY_SERVICE_URL + API_MOVIES_URL + "/" + subpath
+    base_url = INVENTORY_SERVICE_URL.rstrip('/') + API_MOVIES_URL
+    forwarded_url = f"{base_url}/{subpath}" if subpath else base_url
 
     try:
         resp = requests.request(
@@ -31,12 +35,13 @@ def proxy_to_inventory(subpath):
             "transfer-encoding",
             "connection",
         }
+        
         headers = [
             (k, v)
             for k, v in resp.raw.headers.items()
             if k.lower() not in excluded_headers
         ]
-        
+
         return resp.content, resp.status_code, headers
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to inventory service: {e}")

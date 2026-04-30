@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "base"
+  # config.vm.box = "base"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -50,7 +50,6 @@ Vagrant.configure("2") do |config|
   # by making sure your Vagrantfile isn't accessible to the vagrant box.
   # If you use this you may want to enable additional shared subfolders as
   # shown above.
-  # config.vm.synced_folder ".", "/vagrant", disabled: true
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -74,4 +73,23 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
+  #
+  #
+  
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  
+  config.vm.box = "ubuntu/jammy64"
+  config.vm.box_version = "20241002.0.0"
+  # --- INVENTORY SERVICE ---
+  config.vm.define "inventory" do |inventory|
+    inventory.vm.network "private_network", ip: "192.168.56.10"
+    inventory.vm.provision "shell", path: "scripts/provision_inventory.sh"
+    inventory.vm.synced_folder "./srcs/inventory-app", "/home/vagrant/inventory-app"
+  end
+
+  # --- GATEWAY SERVICE ---
+  config.vm.define "getway" do |getway|
+    getway.vm.network "private_network", ip: "192.168.56.11"
+    getway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway"
+  end
 end
