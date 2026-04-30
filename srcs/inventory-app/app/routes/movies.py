@@ -54,3 +54,4 @@ def get_movie(id):
             db.session.commit()
             return '', 204
     return movie.to_dict()
+
