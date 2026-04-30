@@ -21,8 +21,8 @@ def create_movie():
     """Create a movie"""
     
     data = request.get_json()
-    if not data or "title" not in data:
-        return {"error": "Missing title"}, 400
+    if not data or "title" not in data or not data["title"].strip():
+        return {"error": "Missing or invalid title"}, 400
 
     movie = Movie(title=data["title"], description=data.get("description", ""))
     db.session.add(movie)
@@ -34,7 +34,7 @@ def delete_movies():
     """Delete All movies"""
     Movie.query.delete()
     db.session.commit()
-    return {"message": "All movies deleted"}, 200
+    return '', 204
 
 @movies_bp.route("/<int:id>", methods=["GET", "PUT", "DELETE"])
 def get_movie(id):
@@ -44,13 +44,13 @@ def get_movie(id):
     match request.method:
         case "PUT":
             data = request.get_json()
-            if not data or "title" not in data:
-                return {"error": "Missing title"}, 400
+            if not data or "title" not in data or not data["title"].strip():
+                return {"error": "Missing or invalid title"}, 400
             movie.title = data["title"]
             movie.description = data.get("description", movie.description)
             db.session.commit()
         case "DELETE":
             db.session.delete(movie)
             db.session.commit()
-            return {"message": "Movie deleted"}, 200
+            return '', 204
     return movie.to_dict()
