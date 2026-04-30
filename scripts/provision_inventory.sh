@@ -20,4 +20,11 @@ sudo apt-get install -y nodejs npm
 sudo npm install pm2 -g
 
 # 1. Prepare the application folder
-# cd 
+cd /home/vagrant/inventory-app
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+pm2 start server.py --name "inventory-api" --interpreter ./.venv/bin/python3
+pm2 save
