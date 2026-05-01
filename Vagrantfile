@@ -83,7 +83,9 @@ Vagrant.configure("2") do |config|
   # --- INVENTORY SERVICE ---
   config.vm.define "inventory" do |inventory|
     inventory.vm.network "private_network", ip: "192.168.56.10"
+
     inventory.vm.provision "shell", path: "scripts/provision_inventory.sh"
+
     inventory.vm.synced_folder "./srcs/inventory-app", "/home/vagrant/inventory-app",
       type: "rsync",
       rsync__exclude: [".venv/"]
@@ -91,7 +93,7 @@ Vagrant.configure("2") do |config|
 
   # --- GATEWAY SERVICE ---
   config.vm.define "getway" do |getway|
-    getway.vm.network "private_network", ip: "192.168.56.11"
+    getway.vm.network "private_network", ip: "192.168.56.12"
     getway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway"
   end
 end
