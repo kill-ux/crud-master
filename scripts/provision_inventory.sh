@@ -10,9 +10,18 @@ apt-get install -y python3-pip python3-venv postgresql postgresql-contrib
 systemctl start postgresql
 systemctl enable postgresql
 
+#[############################################################################]
 # Setup PostgreSQL (Create database and user)
-sudo -u postgres psql -c "CREATE USER IF NOT EXISTS mv_user PASSWORD 'password';" 2>/dev/null || true
-sudo -u postgres createdb --owner=mv_user movies_db 2>/dev/null || true
+sudo -u postgres psql -c "SELECT 1 FROM pg_roles WHERE rolname = 'mv_user';" |
+grep -q 1 || \
+sudo -u postgres psql -c "CREATE USER mv_user WITH PASSWORD 'password';"
+
+sudo -u postgres psql -c "SELECT 1 FROM pg_database WHERE datname = 'movies_db';" |
+grep -q 1 || \
+sudo -u postgres psql -c "CREATE DATABASE movies_db OWNER mv_user;"
+#[############################################################################]
+
+
 
 
 # Setup PM2
