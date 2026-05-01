@@ -80,11 +80,20 @@ Vagrant.configure("2") do |config|
   
   config.vm.box = "ubuntu/jammy64"
   config.vm.box_version = "20241002.0.0"
+  load_env(".env")
   # --- INVENTORY SERVICE ---
   config.vm.define "inventory" do |inventory|
     inventory.vm.network "private_network", ip: "192.168.56.10"
 
-    inventory.vm.provision "shell", path: "scripts/provision_inventory.sh"
+    inventory.vm.provision "shell" do |sh|
+      sh.path = "scripts/provision_inventory.sh"
+      sh.env = {
+        "INVENTORY_HOST": ENV['INVENTORY_HOST'],
+        "INVENTORY_PORT": ENV['INVENTORY_PORT'],
+        "INVENTORY_MOVIES_DATABASE_URL": ENV['DATABASE_URL'],
+        "GATEWAY_IP": ENV['GATEWAY_IP']
+      }
+    end
 
     inventory.vm.synced_folder "./srcs/inventory-app", "/home/vagrant/inventory-app",
       type: "rsync",
@@ -96,4 +105,27 @@ Vagrant.configure("2") do |config|
     getway.vm.network "private_network", ip: "192.168.56.12"
     getway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway"
   end
+end
+
+
+
+def load_env(file_path = ".env")
+  variables = {}
+  if File.exist?(file_path)
+    File.foreach(file_path) do |line|
+      next if line.strip.empty? || line.strip.start_with?("#")
+      
+      key, value = line.strip.split('=', 2)
+      
+      if key && value
+        clean_value = value.gsub(/^["']|["']$/, '')
+        variables[key] = clean_value
+        
+        ENV[key] = clean_value
+      end
+    end
+  else
+    puts "Warning: #{file_path} not found. Using default settings."
+  end
+  variables
 end

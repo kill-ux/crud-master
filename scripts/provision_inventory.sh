@@ -8,6 +8,13 @@ apt-get update
 apt-get install -y python3-pip python3-venv postgresql postgresql-contrib
 
 #[############################################################################]
+# Setup firewall
+sudo ufw --force enable
+sudo ufw allow from "$GATEWAY_IP" to any port "$INVENTORY_PORT"
+#[############################################################################]
+
+
+#[############################################################################]
 # Setup PostgreSQL
 systemctl start postgresql
 systemctl enable postgresql
@@ -41,16 +48,11 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 
-pm2 delete inventory-api || true
-pm2 start server.py --name "inventory-api" --interpreter ./.venv/bin/python3
-pm2 save
+sudo -u vagrant pm2 delete inventory-api || true
+sudo -u vagrant pm2 start server.py --name "inventory-api" --interpreter ./.venv/bin/python3
+sudo -u vagrant pm2 save
 #[############################################################################]
 
 
 
 
-#[############################################################################]
-# Setup firewall
-sudo ufw --force enable
-sudo ufw allow from "$GATEWAY_IP" to any port "$INVENTORY_PORT"
-#[############################################################################]
