@@ -85,28 +85,43 @@ Vagrant.configure("2") do |config|
   config.vm.define "inventory" do |inventory|
     inventory.vm.network "private_network", ip: "192.168.56.10"
 
+    inventory.vm.synced_folder "./srcs/inventory-app", "/home/vagrant/inventory-app",
+      type: "rsync",
+      rsync__exclude: [".venv/"]
+    
     inventory.vm.provision "shell" do |sh|
       sh.path = "scripts/provision_inventory.sh"
       sh.env = {
         "INVENTORY_HOST": ENV['INVENTORY_HOST'],
         "INVENTORY_PORT": ENV['INVENTORY_PORT'],
-        "INVENTORY_MOVIES_DATABASE_URL": ENV['DATABASE_URL'],
-        "GATEWAY_IP": ENV['GATEWAY_IP']
+        "INVENTORY_DEBUG": ENV['INVENTORY_DEBUG'],
+        "INVENTORY_MOVIES_DATABASE_URL": ENV['INVENTORY_MOVIES_DATABASE_URL'],
+        "GATEWAY_IP": ENV['GATEWAY_IP'],
       }
     end
-
-    inventory.vm.synced_folder "./srcs/inventory-app", "/home/vagrant/inventory-app",
-      type: "rsync",
-      rsync__exclude: [".venv/"]
   end
 
   # --- GATEWAY SERVICE ---
-  config.vm.define "getway" do |getway|
-    getway.vm.network "private_network", ip: "192.168.56.12"
-    getway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway"
+  config.vm.define "gateway" do |gateway|
+    gateway.vm.network "private_network", ip: "192.168.56.12"
+
+    gateway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway",
+      type: "rsync",
+      rsync__exclude: [".venv/"]
+
+    gateway.vm.provision "shell" do |sh|
+      sh.path = "scripts/provision_gateway.sh"
+      sh.env = {
+        "GATEWAY_HOST": ENV['GATEWAY_HOST'],
+        "GATEWAY_PORT": ENV['GATEWAY_PORT'],
+        "GATEWAY_DEBUG": ENV['GATEWAY_DEBUG'],
+        "INVENTORY_IP": ENV['INVENTORY_IP'],
+        "INVENTORY_PORT": ENV['INVENTORY_PORT'],
+        "INVENTORY_SERVICE_URL": ENV['INVENTORY_SERVICE_URL']
+      }
+    end
   end
 end
-
 
 
 def load_env(file_path = ".env")

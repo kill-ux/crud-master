@@ -2,8 +2,10 @@ from flask import Blueprint, request
 import requests
 import os
 
+from app import get_env_variable
+
 gateway_bp = Blueprint("gateway_bp", __name__)
-INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL", "http://localhost:8080")
+INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 API_MOVIES_URL = "/api/movies"
 
 
