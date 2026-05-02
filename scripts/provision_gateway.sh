@@ -3,12 +3,12 @@ set -euo pipefail
 
 echo "=== Provisioning GATEWAY ===";
 apt-get update && apt-get install -y python3-pip python3-venv
-cat > /home/vagrant/api-gateway/.env << ENF
+cat > /home/vagrant/api-gateway/.env << EOF
 GATEWAY_HOST=$GATEWAY_HOST
 GATEWAY_PORT=$GATEWAY_PORT
 GATEWAY_DEBUG=$GATEWAY_DEBUG
 INVENTORY_SERVICE_URL=$INVENTORY_SERVICE_URL
-ENF
+EOF
 chown vagrant:vagrant /home/vagrant/api-gateway/.env
 
 # Setup PM2

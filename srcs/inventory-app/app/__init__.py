@@ -8,6 +8,7 @@ app = Flask(__name__)
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.url_map.strict_slashes = False
 
     from .routes.movies import movies_bp
     from .routes.health import health_bp

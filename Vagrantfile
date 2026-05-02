@@ -104,6 +104,7 @@ Vagrant.configure("2") do |config|
   # --- GATEWAY SERVICE ---
   config.vm.define "gateway" do |gateway|
     gateway.vm.network "private_network", ip: "192.168.56.12"
+    gateway.vm.network "forwarded_port", guest: "5000", host: "5000"
 
     gateway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway",
       type: "rsync",
