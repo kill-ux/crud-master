@@ -44,4 +44,5 @@ pip install -r requirements.txt
 
 sudo -u vagrant pm2 delete api-inventory || true
 sudo -u vagrant pm2 start server.py --name "api-inventory" --interpreter ./.venv/bin/python3
+sudo pm2 startup systemd -u vagrant --hp /home/vagrant
 sudo -u vagrant pm2 save

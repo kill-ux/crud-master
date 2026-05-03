@@ -87,7 +87,7 @@ Vagrant.configure("2") do |config|
 
     inventory.vm.synced_folder "./srcs/inventory-app", "/home/vagrant/inventory-app",
       type: "rsync",
-      rsync__exclude: [".venv/"]
+      rsync__exclude: [".venv/", "/.env"]
     
     inventory.vm.provision "shell" do |sh|
       sh.path = "scripts/provision_inventory.sh"
@@ -108,7 +108,7 @@ Vagrant.configure("2") do |config|
 
     gateway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway",
       type: "rsync",
-      rsync__exclude: [".venv/"]
+      rsync__exclude: [".venv/", "/.env"]
 
     gateway.vm.provision "shell" do |sh|
       sh.path = "scripts/provision_gateway.sh"
