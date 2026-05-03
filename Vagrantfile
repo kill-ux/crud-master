@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "base"
+  # config.vm.box = "base"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -50,7 +50,6 @@ Vagrant.configure("2") do |config|
   # by making sure your Vagrantfile isn't accessible to the vagrant box.
   # If you use this you may want to enable additional shared subfolders as
   # shown above.
-  # config.vm.synced_folder ".", "/vagrant", disabled: true
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -74,4 +73,75 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
+  #
+  #
+  
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  
+  config.vm.box = "ubuntu/jammy64"
+  config.vm.box_version = "20241002.0.0"
+  load_env(".env")
+  # --- INVENTORY SERVICE ---
+  config.vm.define "inventory" do |inventory|
+    inventory.vm.network "private_network", ip: "192.168.56.10"
+
+    inventory.vm.synced_folder "./srcs/inventory-app", "/home/vagrant/inventory-app",
+      type: "rsync",
+      rsync__exclude: [".venv/", "/.env"]
+    
+    inventory.vm.provision "shell" do |sh|
+      sh.path = "scripts/provision_inventory.sh"
+      sh.env = {
+        "INVENTORY_HOST": ENV['INVENTORY_HOST'],
+        "INVENTORY_PORT": ENV['INVENTORY_PORT'],
+        "INVENTORY_DEBUG": ENV['INVENTORY_DEBUG'],
+        "INVENTORY_MOVIES_DATABASE_URL": ENV['INVENTORY_MOVIES_DATABASE_URL'],
+        "GATEWAY_IP": ENV['GATEWAY_IP'],
+      }
+    end
+  end
+
+  # --- GATEWAY SERVICE ---
+  config.vm.define "gateway" do |gateway|
+    gateway.vm.network "private_network", ip: "192.168.56.12"
+    gateway.vm.network "forwarded_port", guest: "5000", host: "5000"
+
+    gateway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway",
+      type: "rsync",
+      rsync__exclude: [".venv/", "/.env"]
+
+    gateway.vm.provision "shell" do |sh|
+      sh.path = "scripts/provision_gateway.sh"
+      sh.env = {
+        "GATEWAY_HOST": ENV['GATEWAY_HOST'],
+        "GATEWAY_PORT": ENV['GATEWAY_PORT'],
+        "GATEWAY_DEBUG": ENV['GATEWAY_DEBUG'],
+        "INVENTORY_IP": ENV['INVENTORY_IP'],
+        "INVENTORY_PORT": ENV['INVENTORY_PORT'],
+        "INVENTORY_SERVICE_URL": ENV['INVENTORY_SERVICE_URL']
+      }
+    end
+  end
+end
+
+
+def load_env(file_path = ".env")
+  variables = {}
+  if File.exist?(file_path)
+    File.foreach(file_path) do |line|
+      next if line.strip.empty? || line.strip.start_with?("#")
+      
+      key, value = line.strip.split('=', 2)
+      
+      if key && value
+        clean_value = value.gsub(/^["']|["']$/, '')
+        variables[key] = clean_value
+        
+        ENV[key] = clean_value
+      end
+    end
+  else
+    puts "Warning: #{file_path} not found. Using default settings."
+  end
+  variables
 end

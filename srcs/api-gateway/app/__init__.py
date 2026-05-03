@@ -1,25 +1,13 @@
 from flask import Flask
-from .config import Config
-from .models import db
-
-app = Flask(__name__)
 
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
     app.url_map.strict_slashes = False
-
-    from .routes.movies import movies_bp
-    from .routes.health import health_bp
-
-    app.register_blueprint(movies_bp)
-    app.register_blueprint(health_bp)
-
-    db.init_app(app)
-    with app.app_context():
-        db.create_all()
-
+    
+    from .routes import gateway_bp
+    app.register_blueprint(gateway_bp)
+    
     @app.errorhandler(Exception)
     def handle_exception(e):
         if hasattr(e, "code"):
@@ -30,7 +18,6 @@ def create_app():
         return {"error": "Internal Server Error", "message": str(e)}, 500
 
     return app
-
 
 import os
 
