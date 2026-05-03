@@ -82,12 +82,12 @@ Vagrant.configure("2") do |config|
   config.vm.box_version = "20241002.0.0"
   load_env(".env")
   # --- INVENTORY SERVICE ---
-  config.vm.define "inventory" do |inventory|
+  config.vm.define "inventory-vm" do |inventory|
     inventory.vm.network "private_network", ip: "192.168.56.10"
 
     inventory.vm.synced_folder "./srcs/inventory-app", "/home/vagrant/inventory-app",
       type: "rsync",
-      rsync__exclude: [".venv/", "/.env"]
+      rsync__exclude: [".venv/", ".env"]
     
     inventory.vm.provision "shell" do |sh|
       sh.path = "scripts/provision_inventory.sh"
@@ -102,13 +102,13 @@ Vagrant.configure("2") do |config|
   end
 
   # --- GATEWAY SERVICE ---
-  config.vm.define "gateway" do |gateway|
+  config.vm.define "gateway-vm" do |gateway|
     gateway.vm.network "private_network", ip: "192.168.56.12"
     gateway.vm.network "forwarded_port", guest: "5000", host: "5000"
 
     gateway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway",
       type: "rsync",
-      rsync__exclude: [".venv/", "/.env"]
+      rsync__exclude: [".venv/", ".env"]
 
     gateway.vm.provision "shell" do |sh|
       sh.path = "scripts/provision_gateway.sh"
