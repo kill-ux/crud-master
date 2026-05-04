@@ -2,8 +2,6 @@ from flask import Blueprint, request
 import requests
 import os
 
-from app import get_env_variable
-
 gateway_bp = Blueprint("gateway_bp", __name__)
 INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 API_MOVIES_URL = "/api/movies"
@@ -48,3 +46,8 @@ def proxy_to_inventory(subpath=""):
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to inventory service: {e}")
         return {"error": "Inventory service is down"}, 503
+
+
+import pika
+conn = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = conn.channel()
