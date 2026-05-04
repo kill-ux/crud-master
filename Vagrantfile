@@ -110,7 +110,7 @@ Vagrant.configure("2") do |config|
       rsync__exclude: [".venv/", ".env"]
     
     billing.vm.provision "shell" do |sh|
-      sh.path = "scripts/provision_inventory.sh"
+      sh.path = "scripts/provision_billing.sh"
     end
   end
 
