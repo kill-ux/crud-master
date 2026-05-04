@@ -48,10 +48,13 @@ def proxy_to_inventory(subpath=""):
 
 import pika
 
-conn = pika.BlockingConnection(pika.ConnectionParameters("192.168.56.11"))
-channel = conn.channel()
-
 
 @gateway_bp.route("/")
 def sent():
+    conn = pika.BlockingConnection(pika.ConnectionParameters("192.168.56.11"))
+    channel = conn.channel()
+    channel.queue_declare(queue='hello')
+    channel.basic_publish(exchange='', routing_key='hello', body='test message')
+    print(" [x] Sent 'Hello World!'")
+    conn.close()
     return {"status": "sent"}
