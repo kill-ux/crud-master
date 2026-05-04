@@ -7,15 +7,13 @@ INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 API_MOVIES_URL = "/api/movies"
 
 
-@gateway_bp.route(
-    API_MOVIES_URL + "/", methods=["GET", "POST", "DELETE"]
-)
+@gateway_bp.route(API_MOVIES_URL + "/", methods=["GET", "POST", "DELETE"])
 @gateway_bp.route(
     API_MOVIES_URL + "/<path:subpath>", methods=["GET", "POST", "PUT", "DELETE"]
 )
 def proxy_to_inventory(subpath=""):
     """Proxy endpoint to forward requests to the inventory service"""
-    base_url = INVENTORY_SERVICE_URL.rstrip('/') + API_MOVIES_URL
+    base_url = INVENTORY_SERVICE_URL.rstrip("/") + API_MOVIES_URL
     forwarded_url = f"{base_url}/{subpath}" if subpath else base_url
 
     try:
@@ -35,7 +33,7 @@ def proxy_to_inventory(subpath=""):
             "transfer-encoding",
             "connection",
         }
-        
+
         headers = [
             (k, v)
             for k, v in resp.raw.headers.items()
@@ -49,5 +47,11 @@ def proxy_to_inventory(subpath=""):
 
 
 import pika
-conn = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+
+conn = pika.BlockingConnection(pika.ConnectionParameters("192.168.56.11"))
 channel = conn.channel()
+
+
+@gateway_bp.route("/")
+def sent():
+    return {"status": "sent"}
