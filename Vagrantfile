@@ -103,7 +103,7 @@ Vagrant.configure("2") do |config|
 
   # --- INVENTORY SERVICE ---
   config.vm.define "billing-vm" do |billing|
-    billing.vm.network "private_network", ip: "192.168.56.10"
+    billing.vm.network "private_network", ip: "192.168.56.11"
 
     billing.vm.synced_folder "./srcs/billing-app", "/home/vagrant/billing-app",
       type: "rsync",
@@ -111,6 +111,12 @@ Vagrant.configure("2") do |config|
     
     billing.vm.provision "shell" do |sh|
       sh.path = "scripts/provision_billing.sh"
+      sh.env = {
+        "BILLING_HOST": ENV['BILLING_HOST'],
+        "BILLING_PORT": ENV['BILLING_PORT'],
+        "BILLING_DEBUG": ENV['BILLING_DEBUG'],
+        "GATEWAY_IP": ENV['GATEWAY_IP'],
+      }
     end
   end
 

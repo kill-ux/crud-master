@@ -51,10 +51,22 @@ import pika
 
 @gateway_bp.route("/")
 def sent():
-    conn = pika.BlockingConnection(pika.ConnectionParameters("192.168.56.11"))
+    conn = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            "192.168.56.11",
+            credentials=pika.PlainCredentials(
+                username="billing_user", password="billing_user"
+            ),
+        )
+    )
     channel = conn.channel()
-    channel.queue_declare(queue='hello')
-    channel.basic_publish(exchange='', routing_key='hello', body='test message')
+    channel.queue_declare(queue="hello", durable=True)
+    channel.basic_publish(
+        exchange="",
+        routing_key="hello",
+        body="test message",
+        properties=pika.BasicProperties(delivery_mode=2),
+    )
     print(" [x] Sent 'Hello World!'")
     conn.close()
     return {"status": "sent"}
