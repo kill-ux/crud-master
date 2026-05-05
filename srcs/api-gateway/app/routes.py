@@ -60,11 +60,15 @@ def sent():
         )
     )
     channel = conn.channel()
-    channel.queue_declare(queue="hello", durable=True)
+    channel.queue_declare(queue="billing_queue", durable=True)
     channel.basic_publish(
         exchange="",
-        routing_key="hello",
-        body="test message",
+        routing_key="billing_queue",
+        body="""{
+            "user_id": "3",
+            "number_of_items": "5",
+            "total_amount": "180"
+        }""",
         properties=pika.BasicProperties(delivery_mode=2),
     )
     print(" [x] Sent 'Hello World!'")

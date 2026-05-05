@@ -95,7 +95,7 @@ Vagrant.configure("2") do |config|
         "INVENTORY_HOST": ENV['INVENTORY_HOST'],
         "INVENTORY_PORT": ENV['INVENTORY_PORT'],
         "INVENTORY_DEBUG": ENV['INVENTORY_DEBUG'],
-        "INVENTORY_MOVIES_DATABASE_URL": ENV['INVENTORY_MOVIES_DATABASE_URL'],
+        "MOVIES_DATABASE_URL": ENV['MOVIES_DATABASE_URL'],
         "GATEWAY_IP": ENV['GATEWAY_IP'],
       }
     end
@@ -116,6 +116,7 @@ Vagrant.configure("2") do |config|
         "BILLING_PORT": ENV['BILLING_PORT'],
         "BILLING_DEBUG": ENV['BILLING_DEBUG'],
         "GATEWAY_IP": ENV['GATEWAY_IP'],
+        
       }
     end
   end
