@@ -81,6 +81,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/jammy64"
   config.vm.box_version = "20241002.0.0"
   load_env(".env")
+  puts ENV['BILLING_HOST']
   # --- INVENTORY SERVICE ---
   config.vm.define "inventory-vm" do |inventory|
     inventory.vm.network "private_network", ip: "192.168.56.10"
@@ -116,7 +117,12 @@ Vagrant.configure("2") do |config|
         "BILLING_PORT": ENV['BILLING_PORT'],
         "BILLING_DEBUG": ENV['BILLING_DEBUG'],
         "GATEWAY_IP": ENV['GATEWAY_IP'],
-        
+        "RABBITMQ_HOST": ENV['RABBITMQ_HOST'],
+        "RABBITMQ_PORT": ENV['RABBITMQ_PORT'],
+        "RABBITMQ_USERNAME": ENV['RABBITMQ_USERNAME'],
+        "RABBITMQ_PASSWORD": ENV['RABBITMQ_PASSWORD'],
+        "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE'],
+        "BILLING_DATABASE_URL": ENV['BILLING_DATABASE_URL']
       }
     end
   end
@@ -138,7 +144,15 @@ Vagrant.configure("2") do |config|
         "GATEWAY_DEBUG": ENV['GATEWAY_DEBUG'],
         "INVENTORY_IP": ENV['INVENTORY_IP'],
         "INVENTORY_PORT": ENV['INVENTORY_PORT'],
-        "INVENTORY_SERVICE_URL": ENV['INVENTORY_SERVICE_URL']
+        "BILLING_IP": ENV['BILLING_IP'],
+        "BILLING_PORT": ENV['BILLING_PORT'],
+        "INVENTORY_SERVICE_URL": ENV['INVENTORY_SERVICE_URL'],
+        "BILLING_SERVICE_URL": ENV['BILLING_SERVICE_URL'],
+        "RABBITMQ_HOST": ENV['RABBITMQ_HOST'],
+        "RABBITMQ_PORT": ENV['RABBITMQ_PORT'],  
+        "RABBITMQ_USERNAME": ENV['RABBITMQ_USERNAME'],
+        "RABBITMQ_PASSWORD": ENV['RABBITMQ_PASSWORD'],
+        "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE']
       }
     end
   end

@@ -1,9 +1,10 @@
 from flask import Blueprint, request
 import requests
 import os
+from app.publish import publish_message
+
 
 gateway_bp = Blueprint("gateway_bp", __name__)
-INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 API_MOVIES_URL = "/api/movies"
 
 
@@ -46,31 +47,16 @@ def proxy_to_inventory(subpath=""):
         return {"error": "Inventory service is down"}, 503
 
 
-import pika
+import pika, json
 
 
-@gateway_bp.route("/")
-def sent():
-    conn = pika.BlockingConnection(
-        pika.ConnectionParameters(
-            "192.168.56.11",
-            credentials=pika.PlainCredentials(
-                username="billing_user", password="billing_user"
-            ),
-        )
-    )
-    channel = conn.channel()
-    channel.queue_declare(queue="billing_queue", durable=True)
-    channel.basic_publish(
-        exchange="",
-        routing_key="billing_queue",
-        body="""{
-            "user_id": "3",
-            "number_of_items": "5",
-            "total_amount": "180"
-        }""",
-        properties=pika.BasicProperties(delivery_mode=2),
-    )
-    print(" [x] Sent 'Hello World!'")
-    conn.close()
-    return {"status": "sent"}
+@gateway_bp.route("/api/billing/", methods=["POST"])
+def billing():
+    data = request.get_json()
+    if not data:
+        return {'error': 'No JSON body provided'}, 400
+    try:
+        publish_message()
+        return {'message': 'Message posted'}, 200
+    except Exception as e:
+        return {'error': str(e)}, 500

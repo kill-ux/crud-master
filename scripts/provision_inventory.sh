@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo "=== Provisioning INVENTOR ===";
-apt-get update && apt-get install -y python3-pip python3-venv postgresql postgresql-contrib
+apt-get update && apt-get install -y python3-pip python3-venv postgresql
 cat > /home/vagrant/inventory-app/.env << EOF
 INVENTORY_HOST=$INVENTORY_HOST
 INVENTORY_PORT=$INVENTORY_PORT

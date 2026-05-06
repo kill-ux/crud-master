@@ -1,44 +1,14 @@
 from dotenv import load_dotenv
-
 load_dotenv()
-import pika
-from app import get_env_variable
+from app import init_db
 import sys
-
-# HOST = get_env_variable("BILLING_HOST")
-# PORT = get_env_variable("BILLING_PORT")
-# DEBUG = get_env_variable("BILLING_DEBUG").lower() in ("true", "1", "t")
-
-
-# app = create_app()
-
-# if __name__ == "__main__":
-#     app.run(host=HOST,port=PORT,debug=DEBUG)
-
-
-def main():
-    conn = pika.BlockingConnection(
-        pika.ConnectionParameters(
-            credentials=pika.PlainCredentials(
-                username="billing_user", password="password"
-            ),
-        )
-    )
-    channel = conn.channel()
-    channel.queue_declare(queue="billing_queue", durable=True)
-
-    def callback(ch, method, properties, body):
-        print(f" [x] Received {body}")
-
-    channel.basic_consume(queue="billing_queue", auto_ack=True, on_message_callback=callback)
-    print(" [*] Waiting for messages. To exit press CTRL+C")
-    channel.start_consuming()
-
+from app.consumer import start_consumer
 
 
 if __name__ == "__main__":
     try:
-        main()
+        init_db()
+        start_consumer()
     except KeyboardInterrupt:
         print("Interrupted")
         sys.exit()
