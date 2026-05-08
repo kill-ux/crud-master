@@ -1,4 +1,5 @@
-import pika, os
+import pika, os, json
+from flask import  request
 
 INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL")
@@ -7,6 +8,7 @@ RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", int)
 RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME")
 RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE")
+
 
 def publish_message():
     conn = pika.BlockingConnection(
@@ -19,18 +21,19 @@ def publish_message():
         )
     )
     channel = conn.channel()
-    channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)
+    channel.queue_declare(
+        queue=RABBITMQ_QUEUE, durable=True, arguments={"x-queue-type": "quorum"}
+    )
+    data = request.get_json()
     channel.basic_publish(
         exchange="",
         routing_key=RABBITMQ_QUEUE,
-        body="""{
-            "user_id": "3",
-            "number_of_items": "5",
-            "total_amount": "180"
-        }""",
-        properties=pika.BasicProperties(
-            content_type="application/json", delivery_mode=2
-        ),
+        body=json.dumps({
+            'user_id': data['user_id'],
+            'number_of_items': data['number_of_items'],
+            'total_amount': data['total_amount'],
+        }),
+        properties=pika.BasicProperties(content_type="application/json"),
     )
     print(" [x] Sent 'Hello World!'")
     conn.close()

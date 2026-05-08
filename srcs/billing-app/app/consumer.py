@@ -40,7 +40,7 @@ def start_consumer():
     )
 
     channel = conn.channel()
-    channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)
+    channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True, arguments={"x-queue-type": "quorum"})
 
     channel.basic_consume(
         queue=RABBITMQ_QUEUE, on_message_callback=callback
