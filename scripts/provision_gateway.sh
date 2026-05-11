@@ -17,6 +17,11 @@ RABBITMQ_QUEUE=$RABBITMQ_QUEUE
 EOF
 chown vagrant:vagrant /home/vagrant/api-gateway/.env
 
+# Setup firewall
+sudo ufw allow OpenSSH
+sudo ufw allow $GATEWAY_PORT/tcp
+sudo ufw --force enable
+
 # Setup PM2
 sudo apt-get install -y nodejs npm
 sudo npm install pm2 -g

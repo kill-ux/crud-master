@@ -1,8 +1,6 @@
 import pika, os, json
 from flask import  request
 
-INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
-BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL")
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
 RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", int)
 RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME")

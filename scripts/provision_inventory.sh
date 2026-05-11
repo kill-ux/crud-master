@@ -13,9 +13,9 @@ chown vagrant:vagrant /home/vagrant/inventory-app/.env
 
 
 # Setup firewall
-sudo ufw --force enable
 sudo ufw allow OpenSSH
-sudo ufw allow from "$GATEWAY_IP" to any port "$INVENTORY_PORT"
+sudo ufw allow from $GATEWAY_IP to any port $INVENTORY_PORT proto tcp
+sudo ufw --force enable
 
 
 # Setup PostgreSQL

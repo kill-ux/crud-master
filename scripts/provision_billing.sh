@@ -21,6 +21,12 @@ RABBITMQ_QUEUE=$RABBITMQ_QUEUE
 BILLING_DATABASE_URL=$BILLING_DATABASE_URL
 EOF
 
+# Setup firewall
+sudo ufw allow OpenSSH
+sudo ufw allow from "$GATEWAY_IP" to any port "$RABBITMQ_PORT"
+sudo ufw --force enable
+
+
 # Setup Postgressql 
 sudo -u postgres psql -c "SELECT 1 FROM pg_roles WHERE rolname = 'billing_user';" | grep -q 1 || \
 sudo -u postgres psql -c "CREATE USER billing_user WITH PASSWORD 'password';"

@@ -6,6 +6,7 @@ from app.publish import publish_message
 
 gateway_bp = Blueprint("gateway_bp", __name__)
 API_MOVIES_URL = "/api/movies"
+INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 
 
 @gateway_bp.route(API_MOVIES_URL + "/", methods=["GET", "POST", "DELETE"])
@@ -45,9 +46,6 @@ def proxy_to_inventory(subpath=""):
     except requests.exceptions.ConnectionError as e:
         print(f"Error connecting to inventory service: {e}")
         return {"error": "Inventory service is down"}, 503
-
-
-import pika, json
 
 
 @gateway_bp.route("/api/billing/", methods=["POST"])
