@@ -5,14 +5,14 @@ db = SQLAlchemy()
 class Order(db.Model):
     __tablename__ = 'orders'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    movie_id = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.String(50), default="Processed")
+    user_id = db.Column(db.String(50), nullable=False)
+    number_of_items = db.Column(db.Integer, nullable=False)
+    total_amount = db.Column(db.Float, nullable=False)
 
     def to_dict(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "movie_id": self.movie_id,
-            "status": self.status
+            "number_of_items": self.number_of_items,
+            "total_amount": self.total_amount
         }

@@ -1,8 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "=== Provisioning INVENTOR ===";
-apt-get update && apt-get install -y python3-pip python3-venv postgresql postgresql-contrib
+echo "=== Provisioning INVENTORY ===";
 cat > /home/vagrant/inventory-app/.env << EOF
 INVENTORY_HOST=$INVENTORY_HOST
 INVENTORY_PORT=$INVENTORY_PORT
@@ -42,7 +41,8 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 
-sudo -u vagrant pm2 delete api-inventory || true
-sudo -u vagrant pm2 start server.py --name "api-inventory" --interpreter ./.venv/bin/python3
+sudo -u vagrant pm2 delete inventory-api || true
+sudo -u vagrant pm2 start server.py --name "inventory-api" --interpreter ./.venv/bin/python3
+
 sudo pm2 startup systemd -u vagrant --hp /home/vagrant
 sudo -u vagrant pm2 save

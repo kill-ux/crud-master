@@ -4,15 +4,15 @@ import os
 import pika
 import json
 
-from app import get_env_variable
-
 gateway_bp = Blueprint("gateway_bp", __name__)
 
 INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL")
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
+RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "billing_queue")
 
 API_MOVIES_URL = "/api/movies"
+API_BILLING_URL = "/api/billing"
 API_ORDERS_URL = "/api/orders"
 
 
@@ -61,6 +61,7 @@ def proxy_to_inventory(subpath=""):
 @gateway_bp.route(API_ORDERS_URL + "/", methods=["GET"])
 def proxy_to_billing():
     """Directly proxy GET requests to the Billing Service"""
+    # The billing app has /api/orders prefix
     forwarded_url = BILLING_SERVICE_URL.rstrip('/') + API_ORDERS_URL
     
     try:
@@ -70,25 +71,32 @@ def proxy_to_billing():
         return {"error": "Billing service is down"}, 503
 
 
-@gateway_bp.route(API_ORDERS_URL + "/", methods=["POST"])
+@gateway_bp.route(API_BILLING_URL + "/", methods=["POST"])
 def queue_order():
     """Send POST requests to RabbitMQ for asynchronous processing"""
     if not RABBITMQ_HOST:
         return {"error": "RabbitMQ host not configured"}, 500
 
+    user = os.getenv("RABBITMQ_USER", "guest")
+    password = os.getenv("RABBITMQ_PASS", "guest")
+    credentials = pika.PlainCredentials(user, password)
+
     try:
         # Connect to RabbitMQ
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(
+            host=RABBITMQ_HOST,
+            credentials=credentials
+        ))
         channel = connection.channel()
         
         # Ensure the queue exists
-        channel.queue_declare(queue='order_queue', durable=True)
+        channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)
         
         # Publish the message
         message = request.get_json()
         channel.basic_publish(
             exchange='',
-            routing_key='order_queue',
+            routing_key=RABBITMQ_QUEUE,
             body=json.dumps(message),
             properties=pika.BasicProperties(
                 delivery_mode=2,  # make message persistent

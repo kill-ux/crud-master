@@ -2,18 +2,21 @@
 set -euo pipefail
 
 echo "=== Provisioning GATEWAY ===";
-apt-get update && apt-get install -y python3-pip python3-venv
+apt-get update && apt-get install -y python3-pip python3-venv nodejs npm
+sudo npm install pm2 -g
+
 cat > /home/vagrant/api-gateway/.env << EOF
 GATEWAY_HOST=$GATEWAY_HOST
 GATEWAY_PORT=$GATEWAY_PORT
 GATEWAY_DEBUG=$GATEWAY_DEBUG
 INVENTORY_SERVICE_URL=$INVENTORY_SERVICE_URL
+BILLING_SERVICE_URL=$BILLING_SERVICE_URL
+RABBITMQ_HOST=$RABBITMQ_HOST
+RABBITMQ_QUEUE=$RABBITMQ_QUEUE
+RABBITMQ_USER=$RABBITMQ_USER
+RABBITMQ_PASS=$RABBITMQ_PASS
 EOF
 chown vagrant:vagrant /home/vagrant/api-gateway/.env
-
-# Setup PM2
-sudo apt-get install -y nodejs npm
-sudo npm install pm2 -g
 
 # Setup service
 cd /home/vagrant/api-gateway
