@@ -2,7 +2,7 @@
 
 A complete microservices-based application for managing a movie inventory and handling order processing. This project demonstrates synchronous HTTP communication and asynchronous message queuing (RabbitMQ) across an isolated virtualized infrastructure.
 
-## 🚀 Architecture Overview
+## Architecture Overview
 
 The system consists of three primary services running in separate Ubuntu VMs managed by Vagrant:
 
@@ -10,30 +10,73 @@ The system consists of three primary services running in separate Ubuntu VMs man
 2.  **Inventory App (`inventory-vm`)**: A Flask REST API that manages a PostgreSQL database of movies.
 3.  **Billing App (`billing-vm`)**: A hybrid service containing a background worker that processes RabbitMQ messages and a REST API to view order history, backed by its own PostgreSQL database.
 
-## 🛠 Project Structure
+## Project Structure
 
 ```text
 crud-master/
-├── Vagrantfile             # Orchestrates the 3-VM setup
-├── .env                    # Centralized environment configuration
-├── scripts/                # Automated provisioning (Bash)
+├── postman
+│   ├── collections
+│   │   └── crud-master.postman_collection.json
+│   └── environments
+│       └── api-gatway.postman_environment.json
+├── README.md
+├── res
+│   ├── billing_app_file_map.svg
+│   └── billing_system_architecture.svg
+├── resum.md
+├── scripts
+│   ├── provision_billing.sh
 │   ├── provision_gateway.sh
-│   ├── provision_inventory.sh
-│   └── provision_billing.sh
-├── srcs/
-│   ├── api-gateway/        # Flask Reverse Proxy
-│   ├── inventory-app/      # Movie CRUD Service (HTTP)
-│   └── billing-app/        # Order Processing Service (RabbitMQ + HTTP)
-└── resum.md                # Detailed billing & integration technical map
+│   └── provision_inventory.sh
+├── srcs
+│   ├── api-gateway
+│   │   ├── app
+│   │   │   ├── __init__.py
+│   │   │   └── routes.py
+│   │   ├── requirements.txt
+│   │   └── server.py
+│   ├── billing-app
+│   │   ├── app
+│   │   │   ├── config
+│   │   │   │   └── config.py
+│   │   │   ├── controllers
+│   │   │   │   └── orders.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models
+│   │   │   │   └── models.py
+│   │   │   └── worker.py
+│   │   ├── requirements.txt
+│   │   └── server.py
+│   └── inventory-app
+│       ├── app
+│       │   ├── config.py
+│       │   ├── __init__.py
+│       │   ├── models.py
+│       │   ├── __pycache__
+│       │   │   ├── config.cpython-312.pyc
+│       │   │   ├── config.cpython-313.pyc
+│       │   │   ├── __init__.cpython-312.pyc
+│       │   │   ├── __init__.cpython-313.pyc
+│       │   │   ├── models.cpython-312.pyc
+│       │   │   ├── models.cpython-313.pyc
+│       │   │   ├── routes.cpython-312.pyc
+│       │   │   └── routes.cpython-313.pyc
+│       │   └── routes
+│       │       ├── health.py
+│       │       ├── __init__.py
+│       │       └── movies.py
+│       ├── requirements.txt
+│       └── server.py
+├── Vagrantfile
+└── vagrant_install.sh
 ```
 
-## ⚙️ Prerequisites
+## Prerequisites
 
 - **Vagrant** (v2.2+)
 - **VirtualBox**
-- **Terminal** (bash/zsh)
 
-## 🏁 Getting Started
+## Getting Started
 
 1.  **Clone the repository.**
 2.  **Launch the infrastructure:**
@@ -47,7 +90,7 @@ crud-master/
     ```
     *All machines (gateway, inventory, billing) should be `running`.*
 
-## 🧪 Testing the APIs
+## Testing the APIs
 
 The **API Gateway** is exposed on your local machine at `http://localhost:5000`.
 
@@ -72,7 +115,7 @@ The **API Gateway** is exposed on your local machine at `http://localhost:5000`.
   curl http://localhost:5000/api/orders/
   ```
 
-## 🛡 Resilience & Process Management
+## Resilience & Process Management
 
 All services are managed by **PM2** inside the VMs. 
 
@@ -82,7 +125,7 @@ All services are managed by **PM2** inside the VMs.
 3.  Start the service: `vagrant ssh billing -c "sudo -u vagrant pm2 start billing-api"`
 4.  The order is processed automatically as soon as the service recovers.
 
-## 🧹 Maintenance
+## Maintenance
 
 - **Stop VMs:** `vagrant halt`
 - **Rebuild from scratch:** `vagrant destroy -f && vagrant up`
