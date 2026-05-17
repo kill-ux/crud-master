@@ -121,7 +121,7 @@ Vagrant.configure("2") do |config|
         "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE'],
         "RABBITMQ_USER": ENV['RABBITMQ_USER'],
         "RABBITMQ_PASS": ENV['RABBITMQ_PASS'],
-        "GATEWAY_IP": ENV['GATEWAY_IP']
+        "GATEWAY_IP": ENV['GATEWAY_IP'],
       }
     end
   end
@@ -145,12 +145,14 @@ Vagrant.configure("2") do |config|
         "GATEWAY_DEBUG": ENV['GATEWAY_DEBUG'],
         "INVENTORY_IP": ENV['INVENTORY_IP'],
         "INVENTORY_PORT": ENV['INVENTORY_PORT'],
+        "BILLING_IP": ENV['BILLING_IP'],
+        "BILLING_PORT": ENV['BILLING_PORT'],
         "INVENTORY_SERVICE_URL": ENV['INVENTORY_SERVICE_URL'],
         "BILLING_SERVICE_URL": ENV['BILLING_SERVICE_URL'],
         "RABBITMQ_HOST": ENV['RABBITMQ_HOST'],
         "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE'],
         "RABBITMQ_USER": ENV['RABBITMQ_USER'],
-        "RABBITMQ_PASS": ENV['RABBITMQ_PASS']
+        "RABBITMQ_PASS": ENV['RABBITMQ_PASS'],
       }
     end
   end

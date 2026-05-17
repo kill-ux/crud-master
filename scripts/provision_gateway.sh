@@ -5,7 +5,22 @@ echo "=== Provisioning GATEWAY ===";
 apt-get update && apt-get install -y python3-pip python3-venv nodejs npm
 sudo npm install pm2 -g
 
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_IP
+echo $BILLING_PORT
+
 cat > /home/vagrant/api-gateway/.env << EOF
+BILLING_PORT=$BILLING_PORT
+BILLING_IP=$BILLING_IP
 GATEWAY_HOST=$GATEWAY_HOST
 GATEWAY_PORT=$GATEWAY_PORT
 GATEWAY_DEBUG=$GATEWAY_DEBUG
