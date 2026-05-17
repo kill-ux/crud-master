@@ -14,7 +14,7 @@ def start_order_consumer(app):
         credentials=credentials
     ))
     channel = connection.channel()
-    channel.queue_declare(queue=app.config['RABBITMQ_QUEUE'], durable=True)
+    channel.queue_declare(queue=app.config['RABBITMQ_QUEUE'], durable=True, arguments={"x-queue-type": "quorum"})
 
     def callback(ch, method, properties, body):
         with app.app_context():

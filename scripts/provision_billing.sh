@@ -12,17 +12,15 @@ sudo npm install pm2 -g
 cat > /home/vagrant/billing-app/.env << EOF
 BILLING_HOST=$BILLING_HOST
 BILLING_PORT=$BILLING_PORT
+BILLING_DEBUG=$BILLING_DEBUG
 BILLING_DATABASE_URL=$BILLING_DATABASE_URL
 RABBITMQ_HOST=$RABBITMQ_HOST
+RABBITMQ_PORT=$RABBITMQ_PORT
 RABBITMQ_QUEUE=$RABBITMQ_QUEUE
 RABBITMQ_USER=$RABBITMQ_USER
 RABBITMQ_PASS=$RABBITMQ_PASS
 EOF
 chown vagrant:vagrant /home/vagrant/billing-app/.env
-
-# 3. Setup PostgreSQL for Billing
-systemctl start postgresql
-systemctl enable postgresql
 
 # Idempotent user and database creation
 sudo -u postgres psql -c "SELECT 1 FROM pg_roles WHERE rolname = 'billing_user';" | grep -q 1 || \
@@ -31,14 +29,8 @@ sudo -u postgres psql -c "CREATE USER billing_user WITH PASSWORD 'password';"
 sudo -u postgres psql -c "SELECT 1 FROM pg_database WHERE datname = 'orders';" | grep -q 1 || \
 sudo -u postgres psql -c "CREATE DATABASE orders OWNER billing_user;"
 
-# 4. Setup RabbitMQ
-systemctl start rabbitmq-server
-systemctl enable rabbitmq-server
 
-# Create a RabbitMQ user for the gateway (and app) to use
-# Using 'guest'/'guest' is restricted to localhost by default
 rabbitmqctl add_user rabbit_user password || true
-rabbitmqctl set_user_tags rabbit_user administrator || true
 rabbitmqctl set_permissions -p / rabbit_user ".*" ".*" ".*" || true
 
 # 5. Firewall configuration
@@ -46,7 +38,6 @@ sudo ufw --force enable
 sudo ufw allow OpenSSH
 # Allow Gateway to access the Billing API and allow RabbitMQ traffic
 sudo ufw allow from "$GATEWAY_IP" to any port "$BILLING_PORT"
-sudo ufw allow from "$GATEWAY_IP" to any port 5672
 
 # 6. PM2 and App setup
 cd /home/vagrant/billing-app

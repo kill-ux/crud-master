@@ -82,12 +82,12 @@ Vagrant.configure("2") do |config|
   config.vm.box_version = "20241002.0.0"
   load_env(".env")
   # --- INVENTORY SERVICE ---
-  config.vm.define "inventory" do |inventory|
+  config.vm.define "inventory-vm" do |inventory|
     inventory.vm.network "private_network", ip: "192.168.56.10"
 
     inventory.vm.synced_folder "./srcs/inventory-app", "/home/vagrant/inventory-app",
       type: "rsync",
-      rsync__exclude: [".venv/", "/.env"]
+      rsync__exclude: [".venv/", ".env"]
     
     inventory.vm.provision "shell" do |sh|
       sh.path = "scripts/provision_inventory.sh"
@@ -95,47 +95,45 @@ Vagrant.configure("2") do |config|
         "INVENTORY_HOST": ENV['INVENTORY_HOST'],
         "INVENTORY_PORT": ENV['INVENTORY_PORT'],
         "INVENTORY_DEBUG": ENV['INVENTORY_DEBUG'],
-        "INVENTORY_MOVIES_DATABASE_URL": ENV['INVENTORY_MOVIES_DATABASE_URL'],
+        "MOVIES_DATABASE_URL": ENV['MOVIES_DATABASE_URL'],
         "GATEWAY_IP": ENV['GATEWAY_IP'],
       }
     end
   end
 
-
-
   # --- BILLING SERVICE ---
-  config.vm.define "billing" do |billing|
+  config.vm.define "billing-vm" do |billing|
     billing.vm.network "private_network", ip: "192.168.56.11"
 
     billing.vm.synced_folder "./srcs/billing-app", "/home/vagrant/billing-app",
       type: "rsync",
-      rsync__exclude: [".venv/", "/.env"]
-
+      rsync__exclude: [".venv/", ".env"]
+    
     billing.vm.provision "shell" do |sh|
       sh.path = "scripts/provision_billing.sh"
       sh.env = {
         "BILLING_HOST": ENV['BILLING_HOST'],
         "BILLING_PORT": ENV['BILLING_PORT'],
-        "BILLING_DATABASE_URL": ENV['BILLING_DATABASE_URL'],
-        "RABBITMQ_HOST": ENV['RABBITMQ_HOST'],
-        "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE'],
-        "RABBITMQ_USER": ENV['RABBITMQ_USER'],
-        "RABBITMQ_PASS": ENV['RABBITMQ_PASS'],
+        "BILLING_DEBUG": ENV['BILLING_DEBUG'],
         "GATEWAY_IP": ENV['GATEWAY_IP'],
+        "RABBITMQ_HOST": ENV['RABBITMQ_HOST'],
+        "RABBITMQ_PORT": ENV['RABBITMQ_PORT'],
+        "RABBITMQ_USERNAME": ENV['RABBITMQ_USERNAME'],
+        "RABBITMQ_PASSWORD": ENV['RABBITMQ_PASSWORD'],
+        "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE'],
+        "BILLING_DATABASE_URL": ENV['BILLING_DATABASE_URL']
       }
     end
   end
 
-
-
   # --- GATEWAY SERVICE ---
-  config.vm.define "gateway" do |gateway|
+  config.vm.define "gateway-vm" do |gateway|
     gateway.vm.network "private_network", ip: "192.168.56.12"
     gateway.vm.network "forwarded_port", guest: "5000", host: "5000"
 
     gateway.vm.synced_folder "./srcs/api-gateway", "/home/vagrant/api-gateway",
       type: "rsync",
-      rsync__exclude: [".venv/", "/.env"]
+      rsync__exclude: [".venv/", ".env"]
 
     gateway.vm.provision "shell" do |sh|
       sh.path = "scripts/provision_gateway.sh"
@@ -150,9 +148,10 @@ Vagrant.configure("2") do |config|
         "INVENTORY_SERVICE_URL": ENV['INVENTORY_SERVICE_URL'],
         "BILLING_SERVICE_URL": ENV['BILLING_SERVICE_URL'],
         "RABBITMQ_HOST": ENV['RABBITMQ_HOST'],
-        "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE'],
-        "RABBITMQ_USER": ENV['RABBITMQ_USER'],
-        "RABBITMQ_PASS": ENV['RABBITMQ_PASS'],
+        "RABBITMQ_PORT": ENV['RABBITMQ_PORT'],  
+        "RABBITMQ_USERNAME": ENV['RABBITMQ_USERNAME'],
+        "RABBITMQ_PASSWORD": ENV['RABBITMQ_PASSWORD'],
+        "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE']
       }
     end
   end

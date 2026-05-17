@@ -2,9 +2,6 @@ from flask import Flask
 from .config import Config
 from .models import db
 
-app = Flask(__name__)
-
-
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)

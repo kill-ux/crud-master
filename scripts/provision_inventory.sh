@@ -1,25 +1,22 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "=== Provisioning INVENTORY ===";
+echo "=== Provisioning INVENTOR ===";
+apt-get update && apt-get install -y python3-pip python3-venv postgresql
 cat > /home/vagrant/inventory-app/.env << EOF
 INVENTORY_HOST=$INVENTORY_HOST
 INVENTORY_PORT=$INVENTORY_PORT
-INVENTORY_MOVIES_DATABASE_URL=$INVENTORY_MOVIES_DATABASE_URL
+MOVIES_DATABASE_URL=$MOVIES_DATABASE_URL
 INVENTORY_DEBUG=$INVENTORY_DEBUG
 EOF
 chown vagrant:vagrant /home/vagrant/inventory-app/.env
 
 
 # Setup firewall
-sudo ufw --force enable
 sudo ufw allow OpenSSH
-sudo ufw allow from "$GATEWAY_IP" to any port "$INVENTORY_PORT"
+sudo ufw allow from $GATEWAY_IP to any port $INVENTORY_PORT proto tcp
+sudo ufw --force enable
 
-
-# Setup PostgreSQL
-systemctl start postgresql
-systemctl enable postgresql
 
 sudo -u postgres psql -c "SELECT 1 FROM pg_roles WHERE rolname = 'mv_user';" |
 grep -q 1 || \
@@ -41,8 +38,7 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 
-sudo -u vagrant pm2 delete inventory-api || true
-sudo -u vagrant pm2 start server.py --name "inventory-api" --interpreter ./.venv/bin/python3
-
+sudo -u vagrant pm2 delete api-inventory || true
+sudo -u vagrant pm2 start server.py --name "api-inventory" --interpreter ./.venv/bin/python3
 sudo pm2 startup systemd -u vagrant --hp /home/vagrant
 sudo -u vagrant pm2 save

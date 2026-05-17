@@ -9,22 +9,22 @@ gateway_bp = Blueprint("gateway_bp", __name__)
 INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL")
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
-RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "billing_queue")
+RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE")
+RABBITMQ_USER = os.getenv("RABBITMQ_USER")
+RABBITMQ_PASS = os.getenv("RABBITMQ_PASS")
 
 API_MOVIES_URL = "/api/movies"
 API_BILLING_URL = "/api/billing"
 API_ORDERS_URL = "/api/orders"
 
 
-@gateway_bp.route(
-    API_MOVIES_URL + "/", methods=["GET", "POST", "DELETE"]
-)
+@gateway_bp.route(API_MOVIES_URL + "/", methods=["GET", "POST", "DELETE"])
 @gateway_bp.route(
     API_MOVIES_URL + "/<path:subpath>", methods=["GET", "POST", "PUT", "DELETE"]
 )
 def proxy_to_inventory(subpath=""):
     """Proxy endpoint to forward requests to the inventory service"""
-    base_url = INVENTORY_SERVICE_URL.rstrip('/') + API_MOVIES_URL
+    base_url = INVENTORY_SERVICE_URL.rstrip("/") + API_MOVIES_URL
     forwarded_url = f"{base_url}/{subpath}" if subpath else base_url
 
     try:
@@ -33,8 +33,6 @@ def proxy_to_inventory(subpath=""):
             url=forwarded_url,
             json=request.get_json() if request.is_json else None,
             params=request.args,
-            headers={k: v for k, v in request.headers if k.lower() != "host"},
-            cookies=request.cookies,
             allow_redirects=False,
         )
 
@@ -44,7 +42,7 @@ def proxy_to_inventory(subpath=""):
             "transfer-encoding",
             "connection",
         }
-        
+
         headers = [
             (k, v)
             for k, v in resp.raw.headers.items()
@@ -62,8 +60,8 @@ def proxy_to_inventory(subpath=""):
 def proxy_to_billing():
     """Directly proxy GET requests to the Billing Service"""
     # The billing app has /api/orders prefix
-    forwarded_url = BILLING_SERVICE_URL.rstrip('/') + API_ORDERS_URL
-    
+    forwarded_url = BILLING_SERVICE_URL.rstrip("/") + API_ORDERS_URL
+
     try:
         resp = requests.get(forwarded_url, params=request.args)
         return resp.content, resp.status_code
@@ -77,34 +75,37 @@ def queue_order():
     if not RABBITMQ_HOST:
         return {"error": "RabbitMQ host not configured"}, 500
 
-    user = os.getenv("RABBITMQ_USER", "guest")
-    password = os.getenv("RABBITMQ_PASS", "guest")
-    credentials = pika.PlainCredentials(user, password)
+    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
 
     try:
         # Connect to RabbitMQ
-        connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host=RABBITMQ_HOST,
-            credentials=credentials
-        ))
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials)
+        )
         channel = connection.channel()
-        
+
         # Ensure the queue exists
-        channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)
-        
+        channel.queue_declare(
+            queue=RABBITMQ_QUEUE, durable=True, arguments={"x-queue-type": "quorum"}
+        )
+
         # Publish the message
         message = request.get_json()
         channel.basic_publish(
-            exchange='',
+            exchange="",
             routing_key=RABBITMQ_QUEUE,
-            body=json.dumps(message),
-            properties=pika.BasicProperties(
-                delivery_mode=2,  # make message persistent
-            )
+            body=json.dumps(
+                {
+                    "user_id": message["user_id"],
+                    "number_of_items": message["number_of_items"],
+                    "total_amount": message["total_amount"],
+                }
+            ),
+             properties=pika.BasicProperties(content_type="application/json")
         )
         connection.close()
         return {"message": "Order request accepted"}, 202
-        
+
     except Exception as e:
         print(f"RabbitMQ Error: {e}")
         return {"error": "Could not queue order"}, 503
