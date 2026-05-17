@@ -101,6 +101,33 @@ Vagrant.configure("2") do |config|
     end
   end
 
+
+
+  # --- BILLING SERVICE ---
+  config.vm.define "billing" do |billing|
+    billing.vm.network "private_network", ip: "192.168.56.11"
+
+    billing.vm.synced_folder "./srcs/billing-app", "/home/vagrant/billing-app",
+      type: "rsync",
+      rsync__exclude: [".venv/", "/.env"]
+
+    billing.vm.provision "shell" do |sh|
+      sh.path = "scripts/provision_billing.sh"
+      sh.env = {
+        "BILLING_HOST": ENV['BILLING_HOST'],
+        "BILLING_PORT": ENV['BILLING_PORT'],
+        "BILLING_DATABASE_URL": ENV['BILLING_DATABASE_URL'],
+        "RABBITMQ_HOST": ENV['RABBITMQ_HOST'],
+        "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE'],
+        "RABBITMQ_USER": ENV['RABBITMQ_USER'],
+        "RABBITMQ_PASS": ENV['RABBITMQ_PASS'],
+        "GATEWAY_IP": ENV['GATEWAY_IP']
+      }
+    end
+  end
+
+
+
   # --- GATEWAY SERVICE ---
   config.vm.define "gateway" do |gateway|
     gateway.vm.network "private_network", ip: "192.168.56.12"
@@ -124,29 +151,6 @@ Vagrant.configure("2") do |config|
         "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE'],
         "RABBITMQ_USER": ENV['RABBITMQ_USER'],
         "RABBITMQ_PASS": ENV['RABBITMQ_PASS']
-      }
-    end
-  end
-
-  # --- BILLING SERVICE ---
-  config.vm.define "billing" do |billing|
-    billing.vm.network "private_network", ip: "192.168.56.11"
-
-    billing.vm.synced_folder "./srcs/billing-app", "/home/vagrant/billing-app",
-      type: "rsync",
-      rsync__exclude: [".venv/", "/.env"]
-
-    billing.vm.provision "shell" do |sh|
-      sh.path = "scripts/provision_billing.sh"
-      sh.env = {
-        "BILLING_HOST": ENV['BILLING_HOST'],
-        "BILLING_PORT": ENV['BILLING_PORT'],
-        "BILLING_DATABASE_URL": ENV['BILLING_DATABASE_URL'],
-        "RABBITMQ_HOST": ENV['RABBITMQ_HOST'],
-        "RABBITMQ_QUEUE": ENV['RABBITMQ_QUEUE'],
-        "RABBITMQ_USER": ENV['RABBITMQ_USER'],
-        "RABBITMQ_PASS": ENV['RABBITMQ_PASS'],
-        "GATEWAY_IP": ENV['GATEWAY_IP']
       }
     end
   end
