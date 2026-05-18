@@ -24,7 +24,7 @@
 									"",
 									"pm.test(\"Response has success message or created movie\", function () {",
 									"    const responseData = pm.response.json();",
-									"    pm.expect(responseData).to.have.property('message').or.have.property('id');",
+									"    pm.expect(responseData).to.have.property('id');",
 									"});",
 									"",
 									"pm.test(\"Movie can be retrieved after creation\", function () {",
