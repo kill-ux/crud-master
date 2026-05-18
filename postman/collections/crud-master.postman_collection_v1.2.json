@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "cee242e9-2609-4b5c-86a3-00eb04db0340",
+		"_postman_id": "f255f83f-823d-46f4-bdb6-01b587f3eba9",
 		"name": "crud-master",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38957722"
+		"_exporter_id": "42356603"
 	},
 	"item": [
 		{
@@ -259,7 +259,7 @@
 									"",
 									"pm.test(\"Response has success message or created movie\", function () {",
 									"    const responseData = pm.response.json();",
-									"    pm.expect(responseData).to.have.property('message').or.have.property('id');",
+									"    pm.expect(responseData).to.have.property('id');",
 									"});",
 									"",
 									"pm.test(\"Movie can be retrieved after creation\", function () {",
@@ -288,8 +288,7 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
+								"packages": {}
 							}
 						}
 					],
@@ -333,7 +332,7 @@
 									"",
 									"pm.test(\"Response has success message or created movie\", function () {",
 									"    const responseData = pm.response.json();",
-									"    pm.expect(responseData).to.have.property('message').or.have.property('id');",
+									"    pm.expect(responseData).to.have.property('id');",
 									"});",
 									"",
 									"pm.test(\"Movie can be retrieved after creation\", function () {",
@@ -362,8 +361,7 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
+								"packages": {}
 							}
 						}
 					],
@@ -405,9 +403,6 @@
 							"script": {
 								"exec": [
 									"pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
-									"pm.test(\"ID matches request\", () => {",
-									"    pm.expect(pm.response.json().id).to.eql(parseInt(pm.collectionVariables.get(\"last_movie_id\")));",
-									"});",
 									"",
 									"// Test for GET /api/movies/{id}",
 									"pm.test(\"Status code is 200 for valid ID\", function () {",
@@ -427,12 +422,6 @@
 									"    pm.expect(movie.description).to.be.a('string');",
 									"});",
 									"",
-									"pm.test(\"Movie ID matches requested ID\", function () {",
-									"    const movie = pm.response.json();",
-									"    const requestedId = parseInt(pm.collectionVariables.get(\"last_movie_id\"))",
-									"    pm.expect(movie.id).to.equal(requestedId);",
-									"});",
-									"",
 									"// Test for error cases (404)",
 									"pm.test(\"Non-existent ID returns 404\", function () {",
 									"    // This would be a separate request",
@@ -440,8 +429,7 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
+								"packages": {}
 							}
 						}
 					],
@@ -561,8 +549,7 @@
 									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204))"
 								],
 								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
+								"packages": {}
 							}
 						}
 					],

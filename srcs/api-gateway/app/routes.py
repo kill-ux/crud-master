@@ -12,6 +12,7 @@ RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE")
 RABBITMQ_USER = os.getenv("RABBITMQ_USER")
 RABBITMQ_PASS = os.getenv("RABBITMQ_PASS")
+RABBITMQ_PORT = os.getenv("RABBITMQ_PORT")
 
 API_MOVIES_URL = "/api/movies"
 API_BILLING_URL = "/api/billing"
@@ -75,14 +76,24 @@ def queue_order():
     if not RABBITMQ_HOST:
         return {"error": "RabbitMQ host not configured"}, 500
 
+    print("startttttttttttttttt")
+
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
+    print(RABBITMQ_USER)
+    print(RABBITMQ_PASS)
+    print(RABBITMQ_HOST)
+    print(RABBITMQ_QUEUE)
+
 
     try:
+        print("conn start")
         # Connect to RabbitMQ
         connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials)
+            pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT,credentials=credentials)
         )
         channel = connection.channel()
+        print("conn established")
+
 
         # Ensure the queue exists
         channel.queue_declare(
@@ -101,11 +112,12 @@ def queue_order():
                     "total_amount": message["total_amount"],
                 }
             ),
-             properties=pika.BasicProperties(content_type="application/json")
+            properties=pika.BasicProperties(content_type="application/json")
         )
         connection.close()
         return {"message": "Order request accepted"}, 202
 
     except Exception as e:
-        print(f"RabbitMQ Error: {e}")
+        print(f"RabbitMQ Error: {type(e).__name__}: {str(e)}")
         return {"error": "Could not queue order"}, 503
+

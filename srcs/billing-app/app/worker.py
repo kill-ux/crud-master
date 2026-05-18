@@ -5,8 +5,8 @@ from .models.models import db, Order
 
 def start_order_consumer(app):
     """Background worker to consume order messages from RabbitMQ"""
-    user = os.getenv("RABBITMQ_USER", "guest")
-    password = os.getenv("RABBITMQ_PASS", "guest")
+    user = os.getenv("RABBITMQ_USER")
+    password = os.getenv("RABBITMQ_PASS")
     credentials = pika.PlainCredentials(user, password)
     
     connection = pika.BlockingConnection(pika.ConnectionParameters(
