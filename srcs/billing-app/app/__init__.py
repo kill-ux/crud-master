@@ -18,9 +18,9 @@ def create_app():
 import os
 def get_env_variable(name, cast_type=str):
     value = os.getenv(name)
-    if value is None:
-        # For development, providing defaults or raising errors as needed
-        if name == "BILLING_HOST": return "0.0.0.0"
-        if name == "BILLING_PORT": return 5000 if cast_type == int else "5000"
-        raise RuntimeError(f"CRITICAL ERROR: Environment variable '{name}' is not set.")
-    return cast_type(value)
+    try:
+        if value is None:
+            raise RuntimeError(f"CRITICAL ERROR: Environment variable '{name}' is not set.")
+        return cast_type(value)
+    except ValueError:
+        raise RuntimeError(f"CRITICAL ERROR: Variable '{name}' must be of type {cast_type.__name__}.")

@@ -4,7 +4,7 @@ set -euo pipefail
 echo "=== Provisioning BILLING SERVICE ===";
 
 # 1. Install dependencies
-apt-get update && apt-get install -y python3-pip python3-venv postgresql postgresql-contrib rabbitmq-server nodejs npm
+apt-get update && apt-get install -y python3-pip python3-venv postgresql rabbitmq-server nodejs npm
 sudo npm install pm2 -g
 
 # 2. Create the .env file
@@ -20,6 +20,7 @@ RABBITMQ_QUEUE=$RABBITMQ_QUEUE
 RABBITMQ_USER=$RABBITMQ_USER
 RABBITMQ_PASS=$RABBITMQ_PASS
 EOF
+
 chown vagrant:vagrant /home/vagrant/billing-app/.env
 
 # Idempotent user and database creation
@@ -44,7 +45,7 @@ cd /home/vagrant/billing-app
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install -r requirement.txt
+pip install -r requirements.txt
 
 # Start the API server using PM2
 sudo -u vagrant pm2 delete billing-api || true
