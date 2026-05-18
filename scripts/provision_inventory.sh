@@ -6,7 +6,7 @@ apt-get update && apt-get install -y python3-pip python3-venv postgresql
 cat > /home/vagrant/inventory-app/.env << EOF
 INVENTORY_HOST=$INVENTORY_HOST
 INVENTORY_PORT=$INVENTORY_PORT
-MOVIES_DATABASE_URL=$MOVIES_DATABASE_URL
+INVENTORY_MOVIES_DATABASE_URL=$INVENTORY_MOVIES_DATABASE_URL
 INVENTORY_DEBUG=$INVENTORY_DEBUG
 EOF
 chown vagrant:vagrant /home/vagrant/inventory-app/.env
