@@ -39,6 +39,7 @@ sudo ufw --force enable
 sudo ufw allow OpenSSH
 # Allow Gateway to access the Billing API and allow RabbitMQ traffic
 sudo ufw allow from "$GATEWAY_IP" to any port "$BILLING_PORT"
+sudo ufw allow from "$GATEWAY_IP" to any port "$RABBITMQ_PORT"
 
 # 6. PM2 and App setup
 cd /home/vagrant/billing-app

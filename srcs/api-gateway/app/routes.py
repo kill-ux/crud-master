@@ -12,7 +12,7 @@ RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE")
 RABBITMQ_USER = os.getenv("RABBITMQ_USER")
 RABBITMQ_PASS = os.getenv("RABBITMQ_PASS")
-RABBITMQ_PORT = os.getenv("RABBITMQ_PORT")
+RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT"))
 
 API_MOVIES_URL = "/api/movies"
 API_BILLING_URL = "/api/billing"

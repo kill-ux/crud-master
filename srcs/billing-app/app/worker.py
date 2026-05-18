@@ -5,16 +5,23 @@ from .models.models import db, Order
 
 def start_order_consumer(app):
     """Background worker to consume order messages from RabbitMQ"""
+    print("start")
     user = os.getenv("RABBITMQ_USER")
     password = os.getenv("RABBITMQ_PASS")
     credentials = pika.PlainCredentials(user, password)
     
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         host=app.config['RABBITMQ_HOST'],
+        port=app.config['RABBITMQ_PORT'],
         credentials=credentials
     ))
+    print("connect")
     channel = connection.channel()
+    print("channel")
+    
+    print(app.config['RABBITMQ_QUEUE'])
     channel.queue_declare(queue=app.config['RABBITMQ_QUEUE'], durable=True, arguments={"x-queue-type": "quorum"})
+    print("RABBITMQ_QUEUE")
 
     def callback(ch, method, properties, body):
         with app.app_context():
